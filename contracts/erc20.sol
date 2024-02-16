@@ -9,7 +9,7 @@ contract Erc20 {
     uint public decimal;
     uint totalSupply;
 
-    mapping (address => uint256) balanceOf;
+    mapping (address => uint256) balances;
     mapping (address => mapping(address => uint256)) allowance;
 
     // events
@@ -27,13 +27,13 @@ contract Erc20 {
     // ===== view functions ==================
 
     // getTotalSupply
-    function getTotalSupply () external  view returns (uint) {
-        return (totalSupply / 10 ** decimal) - (balanceOf[address(0)] / 10 ** decimal);
+    function TotalSupply () external  view returns (uint) {
+        return (totalSupply / 10 ** decimal) - (balances[address(0)] / 10 ** decimal);
     }
 
     // getBalanceOf
-    function getBalanceOf (address _acct) external view returns (uint) {
-        return balanceOf[_acct] / 10 ** decimal;
+    function balanceOf (address _acct) external view returns (uint) {
+        return balances[_acct] / 10 ** decimal;
     }
 
     // ====== state changing functions =======
@@ -60,13 +60,13 @@ contract Erc20 {
 
         uint _charges = calculatePercentToBurn(_decimalAmt);
 
-        require(balanceOf[msg.sender] >= _decimalAmt + _charges, "You dont not have enough money trnsfr and for charges");
+        require(balances[msg.sender] >= _decimalAmt + _charges, "You dont not have enough money trnsfr and for charges");
 
-        balanceOf[msg.sender] -= _decimalAmt + _charges;
+        balances[msg.sender] -= _decimalAmt + _charges;
 
         _burn(address(0), _charges);
 
-        balanceOf[_to] += _decimalAmt;
+        balances[_to] += _decimalAmt;
 
         emit transferSuccessful(msg.sender, _to, _amount);
     }
@@ -79,17 +79,17 @@ contract Erc20 {
         
         uint _charges = calculatePercentToBurn(_decimalAmt);
         
-        require(balanceOf[_from] >= _decimalAmt + _charges, "You dont not have enough money trnsfr and for charges");
+        require(balances[_from] >= _decimalAmt + _charges, "You dont not have enough money trnsfr and for charges");
         
         require(allowance[_from][_to] >= _decimalAmt, "you dont not have enough allowance bal to spend");
         
-        balanceOf[_from] -= _decimalAmt + _charges;
+        balances[_from] -= _decimalAmt + _charges;
         
         _burn(address(0), _charges);
 
         allowance[_from][_to] -= _decimalAmt;
 
-        balanceOf[_to] += _decimalAmt;
+        balances[_to] += _decimalAmt;
 
         emit transferSuccessful(_from, _to, _amount);
     }
@@ -98,13 +98,13 @@ contract Erc20 {
     function _mint(address _to, uint _amount) private {
         uint _decimalAmt = _amount * (10 ** decimal);
         totalSupply += _decimalAmt;
-        balanceOf[_to] += _decimalAmt;
+        balances[_to] += _decimalAmt;
     }
 
     // burn func
     function _burn(address _to, uint _amount) private {
         totalSupply -= _amount;
-        balanceOf[_to] += _amount;
+        balances[_to] += _amount;
     }
 
     // calc 10% func
